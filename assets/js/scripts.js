@@ -77,11 +77,13 @@ function hideAllForms() {
 
 function showCreatePotionForm() {
   hideAllForms();
-  document.getElementById("create-potion-form").classList.remove("hidden");
+  hideIngredientsList();
+  document.getElementById("create-potion-form").classList.remove("hidden"); // add this line
 }
 
 function showPotionsList() {
   hideAllForms();
+  hideIngredientsList();
   displayPotions();
 }
 
@@ -100,6 +102,16 @@ function toggleDropdown() {
   }
 }
 
+function showIngredientsList() {
+  hideAllForms(); // hide all forms including the add ingredient form
+  document.getElementById("ingredients-list").classList.remove("hidden");
+  displayIngredients();
+}
+
+function hideIngredientsList() {
+  document.getElementById("ingredients-list").classList.add("hidden");
+}
+
 document
   .getElementById("dropdown-content")
   .addEventListener("click", function (e) {
@@ -112,11 +124,9 @@ document
       // Add selected class to the clicked button
       e.target.classList.add("selected");
 
-      // Display the appropriate section based on the button clicked
       switch (e.target.id) {
         case "ingredients-list-btn":
-          hideAllForms();
-          displayIngredients();
+          showIngredientsList();
           break;
         case "add-ingredient-btn":
           showAddIngredientForm();

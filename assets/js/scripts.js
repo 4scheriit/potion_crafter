@@ -65,7 +65,7 @@ function addPotion() {
     dc: 0, // Initialize with 0, we'll calculate this shortly
   };
 
-  let totalDC = 0;
+  let totalDC = 10;
   for (let pair of ingredientsPairs) {
     const match = pair.match(/(.*\S) (\d+)$/);
     if (match && match.length === 3) {

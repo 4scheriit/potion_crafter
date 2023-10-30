@@ -4,16 +4,22 @@ let potions = {};
 function addIngredient() {
   const name = document.getElementById("ingredient-name").value;
   const amount = parseInt(document.getElementById("ingredient-amount").value);
+  const dc = parseInt(document.getElementById("ingredient-dc").value);
 
   if (!ingredients[name]) {
-    ingredients[name] = amount;
+    ingredients[name] = {
+      amount: amount,
+      dc: dc,
+    };
   } else {
-    ingredients[name] += amount;
+    ingredients[name].amount += amount;
+    ingredients[name].dc = dc; // assuming you want to overwrite the DC with the new value
   }
 
   // Clear the input fields
   document.getElementById("ingredient-name").value = "";
   document.getElementById("ingredient-amount").value = "";
+  document.getElementById("ingredient-dc").value = "";
 
   displayIngredients();
 }
@@ -27,8 +33,9 @@ function displayIngredients() {
     a[0].localeCompare(b[0])
   );
 
-  for (let [ingredient, amount] of sortedIngredients) {
-    list.innerHTML += `<div>${ingredient}: ${amount}</div>`;
+  for (let [ingredient, details] of sortedIngredients) {
+    list.innerHTML += `
+            <div>${ingredient}: ${details.amount} &nbsp;&nbsp; DC: ${details.dc}</div>`;
   }
 }
 

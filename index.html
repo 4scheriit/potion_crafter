@@ -4,22 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alchemy Potion Maker</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
   </head>
 
   <body>
-    <div id="ingredient-input">
+    <div class="hamburger-menu" onclick="toggleDropdown()">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <!-- Dropdown menu -->
+      <div id="dropdown-content" class="hidden">
+        <button id="ingredients-list-btn" class="selected">
+          Ingredients List
+        </button>
+        <button id="add-ingredient-btn">Add Ingredient</button>
+        <button id="potions-list-btn">Potions List</button>
+        <button id="add-potion-btn">Add Potion</button>
+      </div>
+    </div>
+
+    <div id="ingredient-input" class="hidden">
       <input type="text" id="ingredient-name" placeholder="Ingredient Name" />
       <input type="number" id="ingredient-amount" placeholder="Amount" />
       <button onclick="addIngredient()">Add Ingredient</button>
-    </div>
-
-    <div id="dropdown">
-      <button onclick="toggleDropdown()">Dropdown</button>
-      <div id="dropdown-content">
-        <button onclick="showCreatePotionForm()">Create Potion</button>
-        <button onclick="showPotionsList()">Potions</button>
-      </div>
     </div>
 
     <div id="create-potion-form" class="hidden">
@@ -34,9 +41,8 @@
     </div>
 
     <div id="ingredients-list"></div>
-
     <div id="potions"></div>
 
-    <script src="scripts.js"></script>
+    <script src="assets/js/scripts.js"></script>
   </body>
 </html>

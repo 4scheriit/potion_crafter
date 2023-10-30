@@ -6,18 +6,28 @@ function addIngredient() {
   const amount = parseInt(document.getElementById("ingredient-amount").value);
 
   if (!ingredients[name]) {
-    ingredients[name] = 0;
+    ingredients[name] = amount;
+  } else {
+    ingredients[name] += amount;
   }
-  ingredients[name] += amount;
+
+  // Clear the input fields
+  document.getElementById("ingredient-name").value = "";
+  document.getElementById("ingredient-amount").value = "";
 
   displayIngredients();
 }
 
 function displayIngredients() {
   const list = document.getElementById("ingredients-list");
-  list.innerHTML = "";
+  list.innerHTML = ""; // Reset the innerHTML
 
-  for (let [ingredient, amount] of Object.entries(ingredients)) {
+  // Sort ingredients by name
+  const sortedIngredients = Object.entries(ingredients).sort((a, b) =>
+    a[0].localeCompare(b[0])
+  );
+
+  for (let [ingredient, amount] of sortedIngredients) {
     list.innerHTML += `<div>${ingredient}: ${amount}</div>`;
   }
 }

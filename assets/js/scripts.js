@@ -95,6 +95,49 @@ function addPotion() {
 
   potions[name].dc = totalDC; // Update the potion's DC
 
+  // Create the craft button here first
+  let craftButton = document.createElement("button");
+  craftButton.className = "craft-btn";
+  craftButton.textContent = "Craft";
+
+  let canCraft = true;
+  for (let [ingredientName, requiredAmount] of Object.entries(
+    potions[name].ingredients
+  )) {
+    if (
+      !ingredients[ingredientName] ||
+      ingredients[ingredientName].amount < requiredAmount
+    ) {
+      canCraft = false;
+      break;
+    }
+  }
+  if (!canCraft) {
+    craftButton.disabled = true; // Disable the button
+    craftButton.style.opacity = 0.5; // Make it look greyed out
+  }
+
+  craftButton.addEventListener("click", function () {
+    craftPotion(name);
+    // After crafting, check again if the potion can be crafted with the remaining ingredients
+    let canStillCraft = true;
+    for (let [ingredientName, requiredAmount] of Object.entries(
+      potions[name].ingredients
+    )) {
+      if (
+        !ingredients[ingredientName] ||
+        ingredients[ingredientName].amount < requiredAmount
+      ) {
+        canStillCraft = false;
+        break;
+      }
+    }
+    if (!canStillCraft) {
+      craftButton.disabled = true; // Disable the button
+      craftButton.style.opacity = 0.5; // Make it look greyed out
+    }
+  });
+
   // Create the new potion element
   let potionItem = document.createElement("div");
   potionItem.className = "potion-item";
@@ -121,10 +164,6 @@ function addPotion() {
   potionDC.textContent = "DC: " + totalDC; // Use the calculated DC
   potionDetails.appendChild(potionDC);
 
-  let craftButton = document.createElement("button");
-  craftButton.className = "craft-btn";
-  craftButton.textContent = "Craft";
-
   potionDetails.appendChild(potionEffects);
   potionDetails.appendChild(potionIngredients);
   potionDetails.appendChild(craftButton);
@@ -143,6 +182,33 @@ function addPotion() {
 
   // Append the new potion item to the potions list
   document.getElementById("potions").appendChild(potionItem);
+}
+
+function craftPotion(potionName) {
+  const potion = potions[potionName];
+  let canCraft = true;
+
+  // Check if the user has enough ingredients
+  for (let [ingredientName, requiredAmount] of Object.entries(
+    potion.ingredients
+  )) {
+    if (
+      !ingredients[ingredientName] ||
+      ingredients[ingredientName].amount < requiredAmount
+    ) {
+      canCraft = false;
+      break;
+    }
+  }
+
+  if (canCraft) {
+    for (let [ingredientName, requiredAmount] of Object.entries(
+      potion.ingredients
+    )) {
+      ingredients[ingredientName].amount -= requiredAmount;
+    }
+    displayIngredients(); // update ingredient list display
+  }
 }
 
 function displayPotions() {

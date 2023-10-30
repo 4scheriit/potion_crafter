@@ -1,0 +1,19 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.hidden {
+  display: none;
+}
+
+#dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 1.5em;
+}
+
+#ingredients-list,
+#potions {
+  margin-top: 2em;
+}

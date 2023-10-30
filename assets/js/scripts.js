@@ -22,10 +22,6 @@ function displayIngredients() {
   }
 }
 
-function showCreatePotionForm() {
-  document.getElementById("create-potion-form").classList.remove("hidden");
-}
-
 function addPotion() {
   const name = document.getElementById("potion-name").value;
   const effects = document.getElementById("potion-effects").value;
@@ -64,16 +60,63 @@ function showPotionDetails(name) {
   alert(details);
 }
 
-function toggleDropdown() {
-  const content = document.getElementById("dropdown-content");
-  if (content.style.display === "block") {
-    content.style.display = "none";
-  } else {
-    content.style.display = "block";
-  }
+function hideAllForms() {
+  document.getElementById("ingredient-input").classList.add("hidden");
+  document.getElementById("create-potion-form").classList.add("hidden");
+}
+
+function showCreatePotionForm() {
+  hideAllForms();
+  document.getElementById("create-potion-form").classList.remove("hidden");
 }
 
 function showPotionsList() {
-  document.getElementById("create-potion-form").classList.add("hidden");
+  hideAllForms();
   displayPotions();
 }
+
+function showAddIngredientForm() {
+  hideAllForms();
+  document.getElementById("ingredient-input").classList.remove("hidden");
+}
+
+function toggleDropdown() {
+  const content = document.getElementById("dropdown-content");
+
+  if (content.style.display === "none" || content.style.display === "") {
+    content.style.display = "block";
+  } else {
+    content.style.display = "none";
+  }
+}
+
+document
+  .getElementById("dropdown-content")
+  .addEventListener("click", function (e) {
+    if (e.target.tagName === "BUTTON") {
+      // Remove selected class from all buttons
+      var buttons = e.target.parentElement.children;
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove("selected");
+      }
+      // Add selected class to the clicked button
+      e.target.classList.add("selected");
+
+      // Display the appropriate section based on the button clicked
+      switch (e.target.id) {
+        case "ingredients-list-btn":
+          hideAllForms();
+          displayIngredients();
+          break;
+        case "add-ingredient-btn":
+          showAddIngredientForm();
+          break;
+        case "potions-list-btn":
+          showPotionsList();
+          break;
+        case "add-potion-btn":
+          showCreatePotionForm();
+          break;
+      }
+    }
+  });

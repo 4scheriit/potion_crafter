@@ -26,21 +26,47 @@
     <div id="ingredient-input" class="hidden">
       <input type="text" id="ingredient-name" placeholder="Ingredient Name" />
       <input type="number" id="ingredient-amount" placeholder="Amount" />
+      <input type="number" id="ingredient-dc" placeholder="Enter DC" />
       <button onclick="addIngredient()">Add Ingredient</button>
     </div>
 
     <div id="create-potion-form" class="hidden">
-      <input type="text" id="potion-name" placeholder="Potion Name" />
-      <input type="text" id="potion-effects" placeholder="Potion Effects" />
-      <input
-        type="text"
-        id="potion-ingredients"
-        placeholder="Ingredients (format: name,amount)"
-      />
-      <button onclick="addPotion()">Create Potion</button>
+      <h2>Create a Potion</h2>
+
+      <!-- Potion Name -->
+      <div class="form-group">
+        <label for="potion-name">Potion Name:</label>
+        <input type="text" id="potion-name" placeholder="Enter potion name" />
+      </div>
+
+      <!-- Potion Effects -->
+      <div class="form-group">
+        <label for="potion-effects">Potion Effects:</label>
+        <textarea
+          id="potion-effects"
+          rows="5"
+          placeholder="Describe the potion effects"
+        ></textarea>
+      </div>
+
+      <!-- Potion Ingredients -->
+      <div class="form-group">
+        <label for="potion-ingredients">Ingredients:</label>
+        <textarea
+          id="potion-ingredients"
+          rows="5"
+          placeholder="e.g. ginko root 3, amonita cap 2"
+        ></textarea>
+      </div>
+
+      <!-- Create Potion Button -->
+      <div class="form-group">
+        <button onclick="addPotion()">Add Potion</button>
+      </div>
     </div>
 
     <div id="ingredients-list"></div>
+
     <div id="potions"></div>
 
     <script src="assets/js/scripts.js"></script>

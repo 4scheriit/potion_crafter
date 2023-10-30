@@ -36,17 +36,24 @@ function addPotion() {
   const name = document.getElementById("potion-name").value;
   const effects = document.getElementById("potion-effects").value;
   const ingredientsInput = document.getElementById("potion-ingredients").value;
-  const ingredientsList = ingredientsInput.split(",").map((x) => x.trim());
+
+  // Split by comma to get individual ingredients and amounts
+  const ingredientsPairs = ingredientsInput
+    .split(",")
+    .map((pair) => pair.trim());
 
   potions[name] = {
     effects: effects,
     ingredients: {},
   };
 
-  for (let i = 0; i < ingredientsList.length; i += 2) {
-    potions[name].ingredients[ingredientsList[i]] = parseInt(
-      ingredientsList[i + 1]
-    );
+  for (let pair of ingredientsPairs) {
+    const match = pair.match(/(.*\S) (\d+)$/);
+    if (match && match.length === 3) {
+      const ingredientName = match[1].trim();
+      const ingredientAmount = parseInt(match[2]);
+      potions[name].ingredients[ingredientName] = ingredientAmount;
+    }
   }
 
   displayPotions();
@@ -78,7 +85,7 @@ function hideAllForms() {
 function showCreatePotionForm() {
   hideAllForms();
   hideIngredientsList();
-  document.getElementById("create-potion-form").classList.remove("hidden"); // add this line
+  document.getElementById("create-potion-form").classList.remove("hidden");
 }
 
 function showPotionsList() {

@@ -1,5 +1,15 @@
 let ingredients = {};
 let potions = {};
+let ingredientDCs = {};
+
+fetch("ingredientDCs.json")
+  .then((response) => response.json())
+  .then((data) => {
+    ingredientDCs = data;
+  })
+  .catch((error) => {
+    console.error("Error fetching ingredient DCs:", error);
+  });
 
 function addIngredient() {
   const name = document.getElementById("ingredient-name").value;
@@ -52,16 +62,24 @@ function addPotion() {
   potions[name] = {
     effects: effects,
     ingredients: {},
+    dc: 0, // Initialize with 0, we'll calculate this shortly
   };
 
+  let totalDC = 0;
   for (let pair of ingredientsPairs) {
     const match = pair.match(/(.*\S) (\d+)$/);
     if (match && match.length === 3) {
       const ingredientName = match[1].trim();
       const ingredientAmount = parseInt(match[2]);
       potions[name].ingredients[ingredientName] = ingredientAmount;
+
+      // Add the DC for the ingredient to the totalDC
+      if (ingredientDCs[ingredientName]) {
+        totalDC += ingredientDCs[ingredientName];
+      }
     }
   }
+  potions[name].dc = totalDC; // Update the potion's DC
 
   // Create the new potion element
   let potionItem = document.createElement("div");
@@ -81,6 +99,12 @@ function addPotion() {
   let potionIngredients = document.createElement("div");
   potionIngredients.className = "potion-ingredients";
   potionIngredients.textContent = "Ingredients: " + ingredientsInput; // Use the actual ingredients
+
+  // Add the DC to the potion's details
+  let potionDC = document.createElement("div");
+  potionDC.className = "potion-dc";
+  potionDC.textContent = "DC: " + totalDC; // Use the calculated DC
+  potionDetails.appendChild(potionDC);
 
   let craftButton = document.createElement("button");
   craftButton.className = "craft-btn";
@@ -113,6 +137,16 @@ function displayPotions() {
   for (let [potionName, potion] of Object.entries(potions)) {
     list.innerHTML += `<div onclick="showPotionDetails('${potionName}')">${potionName}</div>`;
   }
+}
+
+function showPotionDetails(name) {
+  const potion = potions[name];
+  const details = `<div>
+        Effects: ${potion.effects}<br>
+        Ingredients: ${JSON.stringify(potion.ingredients)}<br>
+        DC: ${potion.dc}
+    </div>`;
+  alert(details);
 }
 
 function hideAllForms() {

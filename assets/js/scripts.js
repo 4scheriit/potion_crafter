@@ -56,7 +56,47 @@ function addPotion() {
     }
   }
 
-  displayPotions();
+  // Create the new potion element
+  let potionItem = document.createElement("div");
+  potionItem.className = "potion-item";
+
+  let potionTitle = document.createElement("div");
+  potionTitle.className = "potion-title";
+  potionTitle.textContent = name; // Use the actual potion name
+
+  let potionDetails = document.createElement("div");
+  potionDetails.className = "potion-details hidden";
+
+  let potionEffects = document.createElement("div");
+  potionEffects.className = "potion-effects";
+  potionEffects.textContent = "Potion Effects: " + effects; // Use the actual potion effects
+
+  let potionIngredients = document.createElement("div");
+  potionIngredients.className = "potion-ingredients";
+  potionIngredients.textContent = "Ingredients: " + ingredientsInput; // Use the actual ingredients
+
+  let craftButton = document.createElement("button");
+  craftButton.className = "craft-btn";
+  craftButton.textContent = "Craft";
+
+  potionDetails.appendChild(potionEffects);
+  potionDetails.appendChild(potionIngredients);
+  potionDetails.appendChild(craftButton);
+
+  potionItem.appendChild(potionTitle);
+  potionItem.appendChild(potionDetails);
+
+  // Add click event to the potion item to show/hide details
+  potionTitle.addEventListener("click", function () {
+    if (potionDetails.classList.contains("hidden")) {
+      potionDetails.classList.remove("hidden");
+    } else {
+      potionDetails.classList.add("hidden");
+    }
+  });
+
+  // Append the new potion item to the potions list
+  document.getElementById("potions").appendChild(potionItem);
 }
 
 function displayPotions() {
@@ -66,15 +106,6 @@ function displayPotions() {
   for (let [potionName, potion] of Object.entries(potions)) {
     list.innerHTML += `<div onclick="showPotionDetails('${potionName}')">${potionName}</div>`;
   }
-}
-
-function showPotionDetails(name) {
-  const potion = potions[name];
-  const details = `<div>
-        Effects: ${potion.effects}<br>
-        Ingredients: ${JSON.stringify(potion.ingredients)}
-    </div>`;
-  alert(details);
 }
 
 function hideAllForms() {
@@ -147,3 +178,14 @@ document
       }
     }
   });
+
+document.addEventListener("DOMContentLoaded", function () {
+  const potionTitles = document.querySelectorAll(".potion-title");
+
+  potionTitles.forEach((title) => {
+    title.addEventListener("click", function () {
+      const details = this.nextElementSibling; // The .potion-details element
+      details.classList.toggle("hidden");
+    });
+  });
+});

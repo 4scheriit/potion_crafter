@@ -1,6 +1,7 @@
 let ingredients = {};
 let potions = {};
 let ingredientDCs = {};
+let userIngredients = {};
 
 fetch("ingredientDCs.json")
   .then((response) => response.json())
@@ -66,6 +67,10 @@ function addPotion() {
   };
 
   let totalDC = 10;
+
+  // Array to hold the displayed ingredients, with user quantities
+  let displayedIngredients = [];
+
   for (let pair of ingredientsPairs) {
     const match = pair.match(/(.*\S) (\d+)$/);
     if (match && match.length === 3) {
@@ -77,8 +82,17 @@ function addPotion() {
       if (ingredientDCs[ingredientName]) {
         totalDC += ingredientDCs[ingredientName];
       }
+
+      // Append the ingredient display text with user's quantity
+      const userAmount = ingredients[ingredientName]
+        ? ingredients[ingredientName].amount
+        : 0;
+      displayedIngredients.push(
+        `${ingredientName} ${userAmount}/${ingredientAmount}`
+      );
     }
   }
+
   potions[name].dc = totalDC; // Update the potion's DC
 
   // Create the new potion element
@@ -98,7 +112,8 @@ function addPotion() {
 
   let potionIngredients = document.createElement("div");
   potionIngredients.className = "potion-ingredients";
-  potionIngredients.textContent = "Ingredients: " + ingredientsInput; // Use the actual ingredients
+  potionIngredients.textContent =
+    "Ingredients: " + displayedIngredients.join(", ");
 
   // Add the DC to the potion's details
   let potionDC = document.createElement("div");

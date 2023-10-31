@@ -15,7 +15,13 @@ fetch("ingredientDCs.json")
 function addIngredient() {
   const name = document.getElementById("ingredient-name").value;
   const amount = parseInt(document.getElementById("ingredient-amount").value);
-  const dc = parseInt(document.getElementById("ingredient-dc").value);
+
+  const dc = ingredientDCs[name]; // Fetch the DC from ingredientDCs object
+
+  if (typeof dc === "undefined") {
+    console.error(`No DC found for ingredient: ${name}`);
+    return; // Exit the function if no DC is found for the ingredient
+  }
 
   if (!ingredients[name]) {
     ingredients[name] = {
@@ -24,13 +30,11 @@ function addIngredient() {
     };
   } else {
     ingredients[name].amount += amount;
-    ingredients[name].dc = dc; // assuming you want to overwrite the DC with the new value
   }
 
   // Clear the input fields
   document.getElementById("ingredient-name").value = "";
   document.getElementById("ingredient-amount").value = "";
-  document.getElementById("ingredient-dc").value = "";
 
   displayIngredients();
 }

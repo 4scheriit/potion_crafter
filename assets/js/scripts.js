@@ -43,18 +43,37 @@ function addIngredient() {
 }
 
 function displayIngredients() {
-  const list = document.getElementById("ingredients-list");
-  list.innerHTML = ""; // Reset the innerHTML
-
-  // Sort ingredients by name
-  const sortedIngredients = Object.entries(ingredients).sort((a, b) =>
-    a[0].localeCompare(b[0])
-  );
-
-  for (let [ingredient, details] of sortedIngredients) {
-    list.innerHTML += `
-            <div>${ingredient}: ${details.amount} &nbsp;&nbsp; DC: ${details.dc}</div>`;
+  let output = "";
+  for (let name in ingredients) {
+    output += `<div>
+                    <span>${name}</span>: 
+                    <span class="editable-amount" data-ingredient="${name}" contenteditable>${ingredients[name].amount}</span>
+                    DC: ${ingredients[name].dc}
+                 </div>`;
   }
+
+  document.getElementById("ingredients-list").innerHTML = output;
+
+  // Attach event listeners to each editable amount
+  document.querySelectorAll(".editable-amount").forEach((el) => {
+    el.addEventListener("blur", updateIngredientAmount);
+  });
+}
+
+function updateIngredientAmount(event) {
+  const ingredientName = event.target.getAttribute("data-ingredient");
+  const newAmount = parseInt(event.target.innerText, 10);
+
+  if (isNaN(newAmount) || newAmount < 0) {
+    alert("Please enter a valid number!");
+    event.target.innerText = ingredients[ingredientName].amount; // Reset the value to the original if the input is not valid
+    return;
+  }
+
+  ingredients[ingredientName].amount = newAmount;
+
+  // Save the updated ingredients to localStorage
+  localStorage.setItem("ingredients", JSON.stringify(ingredients));
 }
 
 function addPotion() {

@@ -12,8 +12,19 @@ fetch("ingredientDCs.json")
     console.error("Error fetching ingredient DCs:", error);
   });
 
+function capitalizeWords(str) {
+  return str
+    .split(" ")
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
 function addIngredient() {
-  const name = document.getElementById("ingredient-name").value;
+  let name = document.getElementById("ingredient-name").value;
+  name = capitalizeWords(name); // Capitalize the ingredient name
+
   const amount = parseInt(document.getElementById("ingredient-amount").value);
 
   const dc = ingredientDCs[name]; // Fetch the DC from ingredientDCs object

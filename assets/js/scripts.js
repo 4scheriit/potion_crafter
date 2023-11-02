@@ -1,10 +1,27 @@
 let ingredients = {};
 let potions = {};
+let ingredientDCs = {};
+let userIngredients = {};
+
+fetch("ingredientDCs.json")
+  .then((response) => response.json())
+  .then((data) => {
+    ingredientDCs = data;
+  })
+  .catch((error) => {
+    console.error("Error fetching ingredient DCs:", error);
+  });
 
 function addIngredient() {
   const name = document.getElementById("ingredient-name").value;
   const amount = parseInt(document.getElementById("ingredient-amount").value);
-  const dc = parseInt(document.getElementById("ingredient-dc").value);
+
+  const dc = ingredientDCs[name]; // Fetch the DC from ingredientDCs object
+
+  if (typeof dc === "undefined") {
+    console.error(`No DC found for ingredient: ${name}`);
+    return; // Exit the function if no DC is found for the ingredient
+  }
 
   if (!ingredients[name]) {
     ingredients[name] = {
@@ -13,15 +30,16 @@ function addIngredient() {
     };
   } else {
     ingredients[name].amount += amount;
-    ingredients[name].dc = dc; // assuming you want to overwrite the DC with the new value
   }
 
   // Clear the input fields
   document.getElementById("ingredient-name").value = "";
   document.getElementById("ingredient-amount").value = "";
-  document.getElementById("ingredient-dc").value = "";
 
   displayIngredients();
+
+  // Save to localStorage:
+  localStorage.setItem("ingredients", JSON.stringify(ingredients));
 }
 
 function displayIngredients() {
@@ -52,7 +70,13 @@ function addPotion() {
   potions[name] = {
     effects: effects,
     ingredients: {},
+    dc: 0, // Initialize with 0, we'll calculate this shortly
   };
+
+  let totalDC = 10;
+
+  // Array to hold the displayed ingredients, with user quantities
+  let displayedIngredients = [];
 
   for (let pair of ingredientsPairs) {
     const match = pair.match(/(.*\S) (\d+)$/);
@@ -60,8 +84,66 @@ function addPotion() {
       const ingredientName = match[1].trim();
       const ingredientAmount = parseInt(match[2]);
       potions[name].ingredients[ingredientName] = ingredientAmount;
+
+      // Add the DC for the ingredient to the totalDC
+      if (ingredientDCs[ingredientName]) {
+        totalDC += ingredientDCs[ingredientName];
+      }
+
+      // Append the ingredient display text with user's quantity
+      const userAmount = ingredients[ingredientName]
+        ? ingredients[ingredientName].amount
+        : 0;
+      displayedIngredients.push(
+        `${ingredientName} ${userAmount}/${ingredientAmount}`
+      );
     }
   }
+
+  potions[name].dc = totalDC; // Update the potion's DC
+
+  // Create the craft button here first
+  let craftButton = document.createElement("button");
+  craftButton.className = "craft-btn";
+  craftButton.textContent = "Craft";
+
+  let canCraft = true;
+  for (let [ingredientName, requiredAmount] of Object.entries(
+    potions[name].ingredients
+  )) {
+    if (
+      !ingredients[ingredientName] ||
+      ingredients[ingredientName].amount < requiredAmount
+    ) {
+      canCraft = false;
+      break;
+    }
+  }
+  if (!canCraft) {
+    craftButton.disabled = true; // Disable the button
+    craftButton.style.opacity = 0.5; // Make it look greyed out
+  }
+
+  craftButton.addEventListener("click", function () {
+    craftPotion(name);
+    // After crafting, check again if the potion can be crafted with the remaining ingredients
+    let canStillCraft = true;
+    for (let [ingredientName, requiredAmount] of Object.entries(
+      potions[name].ingredients
+    )) {
+      if (
+        !ingredients[ingredientName] ||
+        ingredients[ingredientName].amount < requiredAmount
+      ) {
+        canStillCraft = false;
+        break;
+      }
+    }
+    if (!canStillCraft) {
+      craftButton.disabled = true; // Disable the button
+      craftButton.style.opacity = 0.5; // Make it look greyed out
+    }
+  });
 
   // Create the new potion element
   let potionItem = document.createElement("div");
@@ -80,11 +162,14 @@ function addPotion() {
 
   let potionIngredients = document.createElement("div");
   potionIngredients.className = "potion-ingredients";
-  potionIngredients.textContent = "Ingredients: " + ingredientsInput; // Use the actual ingredients
+  potionIngredients.textContent =
+    "Ingredients: " + displayedIngredients.join(", ");
 
-  let craftButton = document.createElement("button");
-  craftButton.className = "craft-btn";
-  craftButton.textContent = "Craft";
+  // Add the DC to the potion's details
+  let potionDC = document.createElement("div");
+  potionDC.className = "potion-dc";
+  potionDC.textContent = "DC: " + totalDC; // Use the calculated DC
+  potionDetails.appendChild(potionDC);
 
   potionDetails.appendChild(potionEffects);
   potionDetails.appendChild(potionIngredients);
@@ -106,6 +191,33 @@ function addPotion() {
   document.getElementById("potions").appendChild(potionItem);
 }
 
+function craftPotion(potionName) {
+  const potion = potions[potionName];
+  let canCraft = true;
+
+  // Check if the user has enough ingredients
+  for (let [ingredientName, requiredAmount] of Object.entries(
+    potion.ingredients
+  )) {
+    if (
+      !ingredients[ingredientName] ||
+      ingredients[ingredientName].amount < requiredAmount
+    ) {
+      canCraft = false;
+      break;
+    }
+  }
+
+  if (canCraft) {
+    for (let [ingredientName, requiredAmount] of Object.entries(
+      potion.ingredients
+    )) {
+      ingredients[ingredientName].amount -= requiredAmount;
+    }
+    displayIngredients(); // update ingredient list display
+  }
+}
+
 function displayPotions() {
   const list = document.getElementById("potions");
   list.innerHTML = "";
@@ -113,6 +225,16 @@ function displayPotions() {
   for (let [potionName, potion] of Object.entries(potions)) {
     list.innerHTML += `<div onclick="showPotionDetails('${potionName}')">${potionName}</div>`;
   }
+}
+
+function showPotionDetails(name) {
+  const potion = potions[name];
+  const details = `<div>
+        Effects: ${potion.effects}<br>
+        Ingredients: ${JSON.stringify(potion.ingredients)}<br>
+        DC: ${potion.dc}
+    </div>`;
+  alert(details);
 }
 
 function hideAllForms() {
@@ -195,4 +317,15 @@ document.addEventListener("DOMContentLoaded", function () {
       details.classList.toggle("hidden");
     });
   });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const storedIngredients = JSON.parse(
+    localStorage.getItem("ingredients") || "{}"
+  );
+
+  if (Object.keys(storedIngredients).length > 0) {
+    ingredients = storedIngredients;
+    displayIngredients();
+  }
 });

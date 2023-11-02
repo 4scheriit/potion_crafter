@@ -14,9 +14,7 @@
       <div class="bar"></div>
       <!-- Dropdown menu -->
       <div id="dropdown-content" class="hidden">
-        <button id="ingredients-list-btn" class="selected">
-          Ingredients List
-        </button>
+        <button id="ingredients-list-btn" class="selected">All Lists</button>
         <button id="add-ingredient-btn">Add Ingredient</button>
         <button id="potions-list-btn">Potions List</button>
         <button id="add-potion-btn">Add Potion</button>
@@ -26,7 +24,6 @@
     <div id="ingredient-input" class="hidden">
       <input type="text" id="ingredient-name" placeholder="Ingredient Name" />
       <input type="number" id="ingredient-amount" placeholder="Amount" />
-      <input type="number" id="ingredient-dc" placeholder="Enter DC" />
       <button onclick="addIngredient()">Add Ingredient</button>
     </div>
 
@@ -68,6 +65,17 @@
     <div id="ingredients-list"></div>
 
     <div id="potions"></div>
+
+    <div id="potionDetails" class="hidden">
+      <!-- Initially hidden -->
+      <h2>Potion Details</h2>
+      <div>Potion Effects: <span id="potionEffects"></span></div>
+      <div>
+        Ingredients:
+        <span class="ingredientDetail" data-ingredient="Blood Grass"></span>,
+        <span class="ingredientDetail" data-ingredient="Rock Vine"></span>
+      </div>
+    </div>
 
     <script src="assets/js/scripts.js"></script>
   </body>

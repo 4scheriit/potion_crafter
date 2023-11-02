@@ -37,6 +37,9 @@ function addIngredient() {
   document.getElementById("ingredient-amount").value = "";
 
   displayIngredients();
+
+  // Save to localStorage:
+  localStorage.setItem("ingredients", JSON.stringify(ingredients));
 }
 
 function displayIngredients() {
@@ -314,4 +317,15 @@ document.addEventListener("DOMContentLoaded", function () {
       details.classList.toggle("hidden");
     });
   });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const storedIngredients = JSON.parse(
+    localStorage.getItem("ingredients") || "{}"
+  );
+
+  if (Object.keys(storedIngredients).length > 0) {
+    ingredients = storedIngredients;
+    displayIngredients();
+  }
 });

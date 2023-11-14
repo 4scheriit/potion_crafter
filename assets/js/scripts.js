@@ -51,6 +51,9 @@ function addIngredient() {
 
   // Save to localStorage:
   localStorage.setItem("ingredients", JSON.stringify(ingredients));
+
+  // Update the displayed ingredients for all potions
+  updateAllPotionsDisplay();
 }
 
 function displayIngredients() {
@@ -92,6 +95,10 @@ function getIngredientDisplayText(ingredientName, requiredAmount) {
     ? ingredients[ingredientName].amount
     : 0;
   return `${ingredientName} ${userAmount}/${requiredAmount}`;
+}
+
+function savePotionsToLocalStorage() {
+  localStorage.setItem("potions", JSON.stringify(potions));
 }
 
 function addPotion() {
@@ -230,6 +237,8 @@ function addPotion() {
 
   // Append the new potion item to the potions list
   document.getElementById("potions").appendChild(potionItem);
+
+  savePotionsToLocalStorage();
 }
 
 function craftPotion(potionName) {
@@ -263,40 +272,128 @@ function craftPotion(potionName) {
     // Update the display for this specific potion
     updatePotionDisplay(potionName);
   }
+
+  savePotionsToLocalStorage();
 }
 
 function updatePotionDisplay(potionName) {
-  // Find the potion's display element using the data-potion-name attribute
   const potionDisplay = document.querySelector(
-    `[data-potion-name="${potionName}"]`
+    `[data-potion-name="${potionName}"] .potion-ingredients`
   );
   if (!potionDisplay) {
     console.error("No display found for potion:", potionName);
     return;
   }
 
-  const potionIngredientsDisplay = potionDisplay.querySelector(
-    ".potion-ingredients"
-  );
   const potion = potions[potionName];
 
   // Generate the updated ingredients display text
   const ingredientsDisplayText = Object.entries(potion.ingredients)
-    .map(([ingredientName, requiredAmount]) =>
-      getIngredientDisplayText(ingredientName, requiredAmount)
-    )
+    .map(([ingredientName, requiredAmount]) => {
+      // Fetch the latest amount from the 'ingredients' object
+      const userAmount = ingredients[ingredientName]
+        ? ingredients[ingredientName].amount
+        : 0;
+      return `${ingredientName} ${userAmount}/${requiredAmount}`;
+    })
     .join(", ");
 
   // Update the potion's ingredients display
-  potionIngredientsDisplay.textContent = `Ingredients: ${ingredientsDisplayText}`;
+  potionDisplay.textContent = `Ingredients: ${ingredientsDisplayText}`;
+}
+
+function updateAllPotionsDisplay() {
+  for (let potionName in potions) {
+    updatePotionDisplay(potionName); // Call the existing function to update each potion's display
+  }
 }
 
 function displayPotions() {
-  const list = document.getElementById("potions");
-  list.innerHTML = "";
+  const potionsContainer = document.getElementById("potions");
+  potionsContainer.innerHTML = ""; // Clear existing potion displays
 
   for (let [potionName, potion] of Object.entries(potions)) {
-    list.innerHTML += `<div onclick="showPotionDetails('${potionName}')">${potionName}</div>`;
+    // Create the potion item container
+    let potionItem = document.createElement("div");
+    potionItem.className = "potion-item";
+    potionItem.setAttribute("data-potion-name", potionName);
+
+    // Create the potion title
+    let potionTitle = document.createElement("div");
+    potionTitle.className = "potion-title";
+    potionTitle.textContent = potionName;
+    potionTitle.addEventListener("click", function () {
+      potionDetails.classList.toggle("hidden");
+    });
+
+    // Create the potion details container
+    let potionDetails = document.createElement("div");
+    potionDetails.className = "potion-details hidden";
+
+    // Add the potion effects
+    let potionEffects = document.createElement("div");
+    potionEffects.className = "potion-effects";
+    potionEffects.textContent = "Potion Effects: " + potion.effects;
+
+    // Add the potion ingredients
+    let potionIngredients = document.createElement("div");
+    potionIngredients.className = "potion-ingredients";
+    potionIngredients.textContent =
+      "Ingredients: " +
+      Object.entries(potion.ingredients)
+        .map(
+          ([ingredientName, requiredAmount]) =>
+            `${ingredientName} ${
+              ingredients[ingredientName]?.amount || 0
+            }/${requiredAmount}`
+        )
+        .join(", ");
+
+    // Add the potion DC
+    let potionDC = document.createElement("div");
+    potionDC.className = "potion-dc";
+    potionDC.textContent = "DC: " + potion.dc;
+
+    // Append the potion effects, ingredients, and DC to the details container
+    potionDetails.appendChild(potionEffects);
+    potionDetails.appendChild(potionIngredients);
+    potionDetails.appendChild(potionDC);
+
+    // Recreate the craft button
+    let craftButton = document.createElement("button");
+    craftButton.className = "craft-btn";
+    craftButton.textContent = "Craft";
+    craftButton.addEventListener("click", function () {
+      craftPotion(potionName);
+    });
+
+    // Check if the user has enough ingredients to craft the potion
+    let canCraft = true;
+    for (let [ingredientName, requiredAmount] of Object.entries(
+      potion.ingredients
+    )) {
+      if (
+        !ingredients[ingredientName] ||
+        ingredients[ingredientName].amount < requiredAmount
+      ) {
+        canCraft = false;
+        break;
+      }
+    }
+
+    // Enable or disable the craft button based on ingredient availability
+    craftButton.disabled = !canCraft;
+    craftButton.style.opacity = canCraft ? "1" : "0.5";
+
+    // Append the craft button to the potion details
+    potionDetails.appendChild(craftButton);
+
+    // Append the title and details to the potion item
+    potionItem.appendChild(potionTitle);
+    potionItem.appendChild(potionDetails);
+
+    // Append the potion item to the potions container
+    potionsContainer.appendChild(potionItem);
   }
 }
 
@@ -383,12 +480,19 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Load stored ingredients
   const storedIngredients = JSON.parse(
     localStorage.getItem("ingredients") || "{}"
   );
-
   if (Object.keys(storedIngredients).length > 0) {
     ingredients = storedIngredients;
     displayIngredients();
+  }
+
+  // Load stored potions
+  const storedPotions = JSON.parse(localStorage.getItem("potions") || "{}");
+  if (Object.keys(storedPotions).length > 0) {
+    potions = storedPotions;
+    displayPotions(); // Ensure ingredients are displayed before potions
   }
 });

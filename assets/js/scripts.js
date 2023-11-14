@@ -87,6 +87,13 @@ function updateIngredientAmount(event) {
   localStorage.setItem("ingredients", JSON.stringify(ingredients));
 }
 
+function getIngredientDisplayText(ingredientName, requiredAmount) {
+  const userAmount = ingredients[ingredientName]
+    ? ingredients[ingredientName].amount
+    : 0;
+  return `${ingredientName} ${userAmount}/${requiredAmount}`;
+}
+
 function addPotion() {
   const name = document.getElementById("potion-name").value;
   const effects = document.getElementById("potion-effects").value;
@@ -178,6 +185,7 @@ function addPotion() {
   // Create the new potion element
   let potionItem = document.createElement("div");
   potionItem.className = "potion-item";
+  potionItem.setAttribute("data-potion-name", name);
 
   let potionTitle = document.createElement("div");
   potionTitle.className = "potion-title";
@@ -219,6 +227,9 @@ function addPotion() {
 
   // Append the new potion item to the potions list
   document.getElementById("potions").appendChild(potionItem);
+
+  // Append the new potion item to the potions list
+  document.getElementById("potions").appendChild(potionItem);
 }
 
 function craftPotion(potionName) {
@@ -242,10 +253,42 @@ function craftPotion(potionName) {
     for (let [ingredientName, requiredAmount] of Object.entries(
       potion.ingredients
     )) {
+      // Deduct the ingredients amounts
       ingredients[ingredientName].amount -= requiredAmount;
     }
-    displayIngredients(); // update ingredient list display
+
+    // Update the display for the ingredients list
+    displayIngredients();
+
+    // Update the display for this specific potion
+    updatePotionDisplay(potionName);
   }
+}
+
+function updatePotionDisplay(potionName) {
+  // Find the potion's display element using the data-potion-name attribute
+  const potionDisplay = document.querySelector(
+    `[data-potion-name="${potionName}"]`
+  );
+  if (!potionDisplay) {
+    console.error("No display found for potion:", potionName);
+    return;
+  }
+
+  const potionIngredientsDisplay = potionDisplay.querySelector(
+    ".potion-ingredients"
+  );
+  const potion = potions[potionName];
+
+  // Generate the updated ingredients display text
+  const ingredientsDisplayText = Object.entries(potion.ingredients)
+    .map(([ingredientName, requiredAmount]) =>
+      getIngredientDisplayText(ingredientName, requiredAmount)
+    )
+    .join(", ");
+
+  // Update the potion's ingredients display
+  potionIngredientsDisplay.textContent = `Ingredients: ${ingredientsDisplayText}`;
 }
 
 function displayPotions() {
@@ -255,16 +298,6 @@ function displayPotions() {
   for (let [potionName, potion] of Object.entries(potions)) {
     list.innerHTML += `<div onclick="showPotionDetails('${potionName}')">${potionName}</div>`;
   }
-}
-
-function showPotionDetails(name) {
-  const potion = potions[name];
-  const details = `<div>
-        Effects: ${potion.effects}<br>
-        Ingredients: ${JSON.stringify(potion.ingredients)}<br>
-        DC: ${potion.dc}
-    </div>`;
-  alert(details);
 }
 
 function hideAllForms() {

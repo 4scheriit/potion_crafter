@@ -76,18 +76,24 @@ function displayIngredients() {
 
 function updateIngredientAmount(event) {
   const ingredientName = event.target.getAttribute("data-ingredient");
-  const newAmount = parseInt(event.target.innerText, 10);
+  let newAmount = parseInt(event.target.innerText, 10);
 
+  // Validate the new amount
   if (isNaN(newAmount) || newAmount < 0) {
     alert("Please enter a valid number!");
-    event.target.innerText = ingredients[ingredientName].amount; // Reset the value to the original if the input is not valid
+    // Reset the value to the original if the input is not valid
+    event.target.innerText = ingredients[ingredientName].amount;
     return;
   }
 
+  // Update the amount in the ingredients object
   ingredients[ingredientName].amount = newAmount;
 
   // Save the updated ingredients to localStorage
   localStorage.setItem("ingredients", JSON.stringify(ingredients));
+
+  // Update the displayed ingredients for all potions
+  updateAllPotionsDisplay();
 }
 
 function getIngredientDisplayText(ingredientName, requiredAmount) {
